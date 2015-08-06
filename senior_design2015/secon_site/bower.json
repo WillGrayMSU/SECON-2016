@@ -1,0 +1,12 @@
+{
+  "name": "secon-site",
+  "version": "0.0.0",
+  "dependencies": {
+    "normalize-css": "~3.0.1",
+    "bourbon": "~4.0.2",
+    "neat": "~1.6.0",
+    "modernizr": "~2.8.2",
+    "jquery": "~2.1.1"
+  },
+  "devDependencies": {}
+}

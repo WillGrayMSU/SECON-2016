@@ -1,0 +1,36 @@
+table {
+  border-collapse: collapse;
+  margin: ($base-line-height / 2) 0;
+  table-layout: fixed;
+  width: 100%;
+  border: 1px solid darken($base-border-color, 15%);
+  margin-top: 25px;
+  // display: inline-block;
+}
+
+th {
+  border-bottom: 1px solid darken($base-border-color, 15%);
+  font-weight: bold;
+  padding: ($base-line-height / 2) 0;
+  text-align: left;
+}
+
+td {
+  border-bottom: 1px solid $base-border-color;
+  padding: ($base-line-height / 2) 0;
+  padding-right: 8px;
+  text-align: middle;
+}
+
+tbody {
+  // display: table;
+}
+
+tr, td, th {
+  padding-left: 8px;
+  vertical-align: middle;
+}
+
+.table-div {
+  display: inline-block;
+}

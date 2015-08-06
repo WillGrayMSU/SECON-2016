@@ -1,0 +1,20 @@
+@include keyframes(slide-in) {
+  0% {
+    @include transform(translateX(30px));
+    opacity: 0;
+  }
+  100% {
+    @include transform(translateX(0px));
+    opacity: 1;
+  }
+}
+@include keyframes(slide-out) {
+  0% {
+    @include transform(translateX(0px));
+    opacity: 1;
+  }
+  100% {
+    @include transform(translateX(-30px));
+    opacity: 0;
+  }
+}

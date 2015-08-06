@@ -1,0 +1,8 @@
+.spacer {
+    @include span-columns(8);
+    height: 2px;
+    background: $dark-gray;
+    margin-left: 112px;
+    margin-right: 44px;
+    margin-bottom: 10px;
+}

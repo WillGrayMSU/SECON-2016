@@ -1,0 +1,21 @@
+.robot-portion {
+  @include row();
+  padding-top: 10px;
+}
+
+.design-file {
+    @include span-columns(9);
+    @include shift(2);
+    border-bottom: 1px dotted $secondary-color;
+    margin-left: 30px;
+    padding-top: 10px;
+    div {
+        font-size: $body-font-size;
+    }
+}
+
+.design-filename {
+    @include span-columns(6 of 10);
+    @include outer-container();
+    display: inline;
+}

@@ -1,0 +1,77 @@
+.profile {
+	@include span-columns(10);
+	@include row(table);
+	margin: 10px 0px 20px 0px;
+}
+
+.picture {
+	@include size(250px 250px);
+	margin-top: 10px;
+	border-style: solid;
+	border-width: 1px;
+	float: 	left;
+}
+
+.bio {
+	padding: 15px 0px 0px 15px;
+	display: inline-block;
+}
+
+.resume {
+    @include span-columns(9);
+    margin-left: 30px;
+    font-size: $body-font-size;
+}
+
+.header {
+	h2, p {
+		display: inline;
+		padding-right: 10px;
+	}
+}
+
+#bruce {
+	.picture {
+		@include size(148px 214px);
+		@include retina-image('../images/team/bruce', 150px 216px);
+	}
+}
+
+#bryce {
+	.picture {
+		@include retina-image('../images/team/bryce', 250px 250px);
+	}
+}
+
+#faith {
+	.picture {
+		@include retina-image('../images/team/faith', 250px 250px);
+	}
+}
+
+#dexter {
+	.picture {
+		@include retina-image('../images/team/dexter', 250px 250px);
+	}
+}
+#steven {
+	.picture {
+		@include retina-image('../images/team/steven', 250px 250px);
+	}
+}
+#ryant {
+	.picture {
+		@include retina-image('../images/team/ryant', 250px 250px);
+	}
+}
+#tran {
+	.picture {
+		@include retina-image('../images/team/tran', 250px 250px);
+	}
+}
+#ben {
+	.picture {
+		@include size(188px 250px);
+		@include retina-image('../images/team/ben',  188px 250px);
+	}
+}
