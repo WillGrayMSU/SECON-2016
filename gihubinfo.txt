@@ -1,0 +1,39 @@
+----------------------------------------------------
+	basic git commands
+----------------------------------------------------
+
+to clone directory
+	git clone https://github.com/<Your_Username_Here>/SECON-2016.git
+	
+this will create a local directory under the github folder, default location is Documents\Github
+
+----------------------------------------------------
+
+	commiting changes
+		
+		cd .\malwarevis
+			changes directory to push local changes to github
+
+		git status
+	
+		git add *
+			add all local changes (ready for commit)
+			
+		git commit -m "message"
+			commits local changes and adds change messages
+			
+		git push	
+			pushes local changes to remote repository 
+			
+	
+----------------------------------------------------
+
+	before starting work make sure to pull and sync the remote repository to your local
+		
+		cd .\malwarvis
+
+		git status
+		
+		git pull	
+			
+	
