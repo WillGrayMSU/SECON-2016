@@ -11,7 +11,7 @@ this will create a local directory under the github folder, default location is 
 
 	commiting changes
 		
-		cd .\malwarevis
+		cd .\SECON-2016
 			changes directory to push local changes to github
 
 		git status
@@ -30,10 +30,12 @@ this will create a local directory under the github folder, default location is 
 
 	before starting work make sure to pull and sync the remote repository to your local
 		
-		cd .\malwarvis
+		cd .\SECON-2016
 
 		git status
 		
+		git pull htttps://github.com/WillGrayMSU/SECON-2016.git master
+
 		git pull	
 			
 -----------------------------------------------------
