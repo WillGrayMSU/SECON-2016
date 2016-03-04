@@ -36,4 +36,10 @@ this will create a local directory under the github folder, default location is 
 		
 		git pull	
 			
-	
+-----------------------------------------------------
+
+	creating branch
+		
+		git checkout -b origin/<Branch Name>
+
+		
