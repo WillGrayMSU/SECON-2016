@@ -1,0 +1,7 @@
+Step1: $ roscore
+Step2: $ rosrun raspicam raspicam_node _framerate:=5 _quality:=10
+Step3: $ rosservice call /camera/start_capture
+	$ rosrun image_transport rupublish compressed in:=/camera/image raw out:=/camera/image
+Step4: $ cd catkin_ws/src/secon16/src_2
+	$ python bertha_bot_control.py
+	Welcome to GUI
