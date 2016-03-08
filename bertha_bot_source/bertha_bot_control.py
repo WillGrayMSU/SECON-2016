@@ -58,28 +58,29 @@ class BotControl(ButtonGui):
 
     def updateState(self, nextState):
         
+        # UPDATED
+
+        #if nextState == 1:
+        #    self.count = 0
+        #    print "State 1"
+        #    self.controller.SetNavCommand(108)
+        #    time.sleep(1.5)
+        #    self.controller.SetNavCommand(46)
+        #    time.sleep(0.5)
+        #    self.controller.SetNavCommand(204)
+        #    time.sleep(1.8)
+        #    self.controller.SetNavCommand(46)
+        #    time.sleep(0.5)
+        #    self.controller.SetNavCommand(108)
+        #    time.sleep(0.5)
+        #    self.controller.SetNavCommand(46)
+        #    time.sleep(0.5)
+
+        #    self.state = 2
+
+        # State 1: SET TRACKING COLOR
         if nextState == 1:
-            self.count = 0
-            print "State 1"
-            self.controller.SetNavCommand(108)
-            time.sleep(1.5)
-            self.controller.SetNavCommand(46)
-            time.sleep(0.5)
-            self.controller.SetNavCommand(204)
-            time.sleep(1.8)
-            self.controller.SetNavCommand(46)
-            time.sleep(0.5)
-            self.controller.SetNavCommand(108)
-            time.sleep(0.5)
-            self.controller.SetNavCommand(46)
-            time.sleep(0.5)
-
-            self.state = 2
-
-        # State 2: SET TRACKING COLOR
-        elif nextState == 2:
-            print "STATE 2"
-            time.sleep(3.0)
+            #print "STATE 1"
             if self.count == 0:
                 # Red Rail Cart
                 self.setTrackingColor(self.railCartColorMatrix[0])
@@ -93,15 +94,11 @@ class BotControl(ButtonGui):
                 # Yellow Rail Cart
                 self.setTrackingColor(self.railCartColorMatrix[3])
 
-            elif self.count >= 4:  
-                self.state = 4 
-
-            self.state = 3
+            self.state = 2
 
         # State 2: CREATE CART ARRAY
-        elif nextState == 3:
-            print "STATE 3"
-            print self.x_center
+        elif nextState == 2:
+            #print "STATE 2"
 
             for color in xrange(4):
                 if (self.x_center > self.firstCart_x_Position[0] and self.x_center < self.firstCart_x_Position[1]):
@@ -116,21 +113,36 @@ class BotControl(ButtonGui):
                 elif (self.x_center > self.fourthCart_x_Position[0] and self.x_center < self.fourthCart_x_Position[1]):
                     self.railCartArray[3] = self.count
 
+                # If an error occurs restart
                 else:
                     print "ERROR"
+                    print "Threshold: ", self.thresholdValue
+                    print "-------------------"
+                    if self.thresholdValue < 0.5:
+                        self.thresholdValue += 0.005
+                    self.count = -1
 
             self.count += 1
-            print self.railCartArray
+            self.state = 1
 
-            self.state = 2
+            # Finished sorting carts
+            if self.count == 4: 
+                print self.railCartArray
+                print "Threshold: ", self.thresholdValue
+                print "-------------------"
+                # ROS topic test
+                self.test.publish(self.railCartArray[0])
+                self.test.publish(self.railCartArray[1])
+                self.test.publish(self.railCartArray[2])
+                self.test.publish(self.railCartArray[3])
+                #self.state = 3 
 
         # State 2: CREATE CART ARRAY
-        elif nextState == 4:
-            print "State 4"
-            time.sleep(1.0)
+        elif nextState == 3:
+            #print "State 3"
             self.count = 0
-            self.state = 2
-        
+            # Start over
+            self.state = 1
 
 
     #__________________________________________________________________________

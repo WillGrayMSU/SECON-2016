@@ -31,6 +31,10 @@ from PyQt4 import uic
 import rospy
 from sensor_msgs.msg import Image    	 # for receiving the video feed
 from sensor_msgs.msg import CompressedImage
+from std_msgs.msg import Byte
+from std_msgs.msg import Bool
+from std_msgs.msg import Int16MultiArray
+from std_srvs.srv import Empty as EmptyServiceType
 
 # Numpy Imports
 import numpy as np
@@ -50,6 +54,12 @@ class ButtonGui(QDialog):
 
         self.controller = RobotController()
 
+        # Publishers
+        self.test = rospy.Publisher('std_msgs/Byte', Byte)
+
+        # Subscriber
+        rospy.Subscriber("std_msgs/Bool", Bool, self.receiveCommand)
+
         # Set up the user interface from Designer.
         uic.loadUi(join(dirname(__file__), 'bertha_bot_control.ui'), self)
         self.setWindowTitle('SECON 2016 Video Feed')
@@ -64,9 +74,10 @@ class ButtonGui(QDialog):
         self.lbAuto_2.setText('[ 0. 0. 0.]')
         self.updateCenterPositions('0', '0')
 
-        self.state = 1
-
         # Rail cart stuff
+        self.stateCheck = False
+
+        self.thresholdValue = 0.001
         self.count = 0
         self.railCartArray = [0, 0, 0, 0]
 
@@ -75,12 +86,13 @@ class ButtonGui(QDialog):
         self.thirdCart_x_Position = [180, 220]
         self.fourthCart_x_Position = [250, 290]
 
-
         self.redCartColor = [60, 8, 0]
-        self.blueCartColor = [1, 19, 19]
+        self.blueCartColor = [1, 20, 30]
         self.greenCartColor = [2, 19, 0]
         self.yellowCartColor = [96, 89, 0]
         self.railCartColorMatrix = [self.redCartColor, self.blueCartColor, self.greenCartColor, self.yellowCartColor]
+
+       
 
 
     def videoFrame(self, image):
@@ -89,8 +101,8 @@ class ButtonGui(QDialog):
         self.cv_image = np.asarray(self.cv.imgmsg_to_cv(image, "rgb8"))
         self.cv_image = cv2.resize(self.cv_image, (self.cv_image.shape[1]/2, self.cv_image.shape[0]/2))
 
-        # lab_img, cont_image, center_mass, cont_area = find_car(self.cv_image, self.trackingColor, self.hsThreshold.value()/100.0)
-        lab_img, cont_image, center_mass, cont_area = find_car(self.cv_image, self.trackingColor, 0.05)
+        #lab_img, cont_image, center_mass, cont_area = find_car(self.cv_image, self.trackingColor, self.hsThreshold.value()/100.0)
+        lab_img, cont_image, center_mass, cont_area = find_car(self.cv_image, self.trackingColor, self.thresholdValue)
 
         qi_1 = QImage(cont_image.data, cont_image.shape[1], cont_image.shape[0], QImage.Format_RGB888)
         
@@ -105,11 +117,19 @@ class ButtonGui(QDialog):
 
         self.updateCenterPositions(str(self.x_center),str(self.y_center))
 
+        if self.stateCheck == True:
+            self.updateState(self.state)
+
         # Enable autonomous mode
         if self.cbAuto.isChecked():
             self.updateState(self.state)
         else:
             self.lbAuto.setText('Disabled.')
+
+
+    def receiveCommand(self, data):
+        self.stateCheck = data.data
+          
 
     def setTrackingColor(self, rgb_Array):
         self.trackingColor = np.array(rgb_Array, dtype=np.float32)/255.0
@@ -122,7 +142,7 @@ class ButtonGui(QDialog):
         # Only pick a color if the mouse click lies inside the image.
 	if x >= 0 and y >= 0 and x < self.lbVideo.width() and y < self.lbVideo.height():
             self.trackingColor = np.array(self.cv_image[y, x], dtype=np.float32)/255.0
-            self.updateTrackingColorLabel(str(self.trackingColor))
+            self.updateTrackingColorLabel(str(self.cv_image[y, x]))
             print self.cv_image[y,x]
 
 class RosVideo(QObject):
