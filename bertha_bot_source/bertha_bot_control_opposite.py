@@ -21,10 +21,10 @@ import rospy
 
 from PIL import Image
 
-# Set frame size and threshold
+# Block alignment
 w = 640/2
 h = 480/2
-thresh = 5
+thresh = 20
 
 
 class BotControl(ButtonGui):
@@ -63,16 +63,13 @@ class BotControl(ButtonGui):
         # Load image into pixel array
         pixels = pil_image.load()
 
-        count = 0
+        counter = 0
 
         # Iterate through column
         for i in range(haircut,h-haircut_lower):
             # Check pixels color
-            white = True
             first = True
             for each in pixels[alignment,i]:
-                if(each > 100) or (each < 50):
-                    white = False
                 if(first):
                     min = each
                     max = each
@@ -84,28 +81,119 @@ class BotControl(ButtonGui):
                         min = each
 
             # Increment for detections
-            if(max-min >30):
-                white = False
-            if white:
-                count+=1
+            if((max - min)<= 35):
+                counter += 1
+
+
 
         # Return true if detections higher than threshold
-        return (count >= thresh)
+        return (counter >= thresh)
+
+    #__________________________________________________________________________
+    #
+    # Rail cart scanning state machine
+    #__________________________________________________________________________
+
+    def updateState(self, nextState):
+
+        # ---------------------------
+        # State 1: SET TRACKING COLOR
+        # ---------------------------
+        if nextState == 1:
+            #print "STATE 1"
+            self.setTrackingColor(self.controller.railCartColorMatrix[self.colorIndex])
+            print "Scanning", self.colorIndex
+
+            self.state = 2
+
+        # --------------------------
+        # State 2: CREATE CART ARRAY
+        # --------------------------
+        elif nextState == 2:
+            # Check the frame locations for each color
+            for index in xrange(4):
+                if (self.controller.x_center > self.firstCart_x_Position[0] and self.controller.x_center < self.firstCart_x_Position[1]):
+                    self.railCartArray[0] = self.colorIndex
+                    if index == 3:
+                        self.colorIndex += 1
+                        self.thresholdValue = 0.01
+
+                elif (self.controller.x_center > self.secondCart_x_Position[0] and self.controller.x_center < self.secondCart_x_Position[1]):
+                    self.railCartArray[1] = self.colorIndex
+                    if index == 3:
+                        self.colorIndex += 1
+                        self.thresholdValue = 0.01
+
+                elif (self.controller.x_center > self.thirdCart_x_Position[0] and self.controller.x_center < self.thirdCart_x_Position[1]):
+                    self.railCartArray[2] = self.colorIndex
+                    if index == 3:
+                        self.colorIndex += 1
+                        self.thresholdValue = 0.01
+
+                elif (self.controller.x_center > self.fourthCart_x_Position[0] and self.controller.x_center < self.fourthCart_x_Position[1]):
+                    self.railCartArray[3] = self.colorIndex
+                    if index == 3:
+                        self.colorIndex += 1
+                        self.thresholdValue = 0.01
+
+                # If an error occurs restart
+                else:
+                    print "ERROR"
+                    print "Threshold: ", self.thresholdValue
+                    print "-------------------"
+                    if self.thresholdValue < 0.3:
+                        self.thresholdValue += 0.005
+                    elif self.thresholdValue >= 0.3:
+                        self.thresholdValue = 0.01
+
+            self.state = 1
+
+            # Finished sorting carts
+            if self.colorIndex == 4:
+                self.colorIndex = 0
+                # Restart if duplicates exist
+                if self.checkForDuplicates(self.railCartArray) == True:
+                    print self.railCartArray
+                    print "******************************"
+                    print "DUPLICATES: True"
+                    print "******************************" 
+                    self.railCartArray = [0,0,0,0]
+                    self.state = 1
+                    # Reset threshhold
+                    self.thresholdValue = 0.01
+
+                elif self.checkForDuplicates(self.railCartArray) == False:
+                    print self.railCartArray
+                    print "Threshold: ", self.thresholdValue
+                    print "-------------------"
+                    # ROS topic test
+                    self.test.publish(self.railCartArray[0])
+                    self.test.publish(self.railCartArray[1])
+                    self.test.publish(self.railCartArray[2])
+                    self.test.publish(self.railCartArray[3])
+                    self.thresholdValue = 0.075
+                    self.state = 3 
+
+        # --------------------------
+        # State 3: END
+        # --------------------------
+        elif nextState == 3:
+            pass
 
 
     def checkForDuplicates(self, array):
         # Check to see if duplicates occur
+        currentElement = 0
         duplicatesExist = False
+        count = 1
         # Iterate through array
-        i = 0
-        while i <  len(array):
+        for index1 in xrange(len(array)):
+            currentElement = array[index1]
             # Compare current element to every other element
-            j = i + 1
-            while j < len(array):
-                if array[i] == array[j]:
+            for index2 in xrange(len(array)-count):
+                if currentElement == array[(len(array)-1)-index2]:
                     duplicatesExist = True
-                j += 1
-            i += 1
+            count += 1
         
         return duplicatesExist
                 
@@ -114,42 +202,18 @@ class BotControl(ButtonGui):
     #
     # Rail cart alignment algorithm
     #__________________________________________________________________________
-    def alignWithCartRight2Left(self):
+    def alignWithFirstCart(self):
 
-        print "CART ARRAY: ", self.railCartArray
-        self.setTrackingColor(self.controller.railCartColorMatrix[self.railCartArray[0]])
+        #self.setTrackingColor(self.controller.railCartColorMatrix[self.railCartArray[0]])
+        # Hard coded for testing
+        self.setTrackingColor(self.controller.railCartColorMatrix[3])
 
-        print self.x_center
-        if (self.x_center >= 120):
-            if (self.x_center >= 120) and (self.countRecalulateCenter == 1):
-                self.countRecalulateCenter = 0
-                self.alignWithCartR2L = False
-                self.alignPub.publish(True)
-            self.countRecalulateCenter += 1    
-        else:
-            pass
+        #if (self.controller.x_center >= 120) and (self.controller.x_center <= 165):
+        #    self.alignPub.publish(True)
+        #else:
+        #    pass
 
 
-    def alignWithCartLeft2Right(self):
-
-        self.setTrackingColor(self.controller.railCartColorMatrix[self.railCartArray[0]])
-
-        print self.x_center
-        if (self.x_center <= 180):
-            if (self.x_center <= 180) and (self.countRecalulateCenter == 1):
-                self.countRecalulateCenter = 0
-                self.alignWithCartL2R = False
-                self.alignPub.publish(True)
-            self.countRecalulateCenter += 1  
-        else:
-            pass
-
-    # Reverse railcart array for second course orientation.
-    def reverseArray(self, array):
-        newArray = [None] * len(array)
-        for index in xrange(len(array)):
-            newArray[index] = array[len(array)-(index+1)]
-        return newArray
 
 
     #__________________________________________________________________________
@@ -210,50 +274,14 @@ class BotControl(ButtonGui):
 
     #__________________________________________________________________________
     #
-    # Platform height commands for GUI
-    #__________________________________________________________________________
-    # Raise 2 inches
-    def on_pbRaise2in_pressed(self):
-        print("Raise 2 Inches Pressed")
-        self.controller.SetNavCommand(50)
-    #def on_pbRaise2in_released(self):
-    #    print("Raise 2 Inches Released")
-    #    self.controller.SetNavCommand(46)
-
-    # Raise 3 inches
-    def on_pbRaise3in_pressed(self):
-        print("Raise 3 Inches Pressed")
-        self.controller.SetNavCommand(54)
-    #def on_pbRaise3in_released(self):
-    #    print("Raise 3 Inches Released")
-    #    self.controller.SetNavCommand(46)
-
-    # Lower 2 inches
-    def on_pbLower2in_pressed(self):
-        print("Lower 2 Inches Pressed")
-        self.controller.SetNavCommand(58)
-    #def on_pbLower2in_released(self):
-    #    print("Lower 2 Inches Released")
-    #    self.controller.SetNavCommand(46)
-
-    # Lower 3 inches
-    def on_pbLower3in_pressed(self):
-        print("Lower 3 Inches Pressed")
-        self.controller.SetNavCommand(62)
-    #def on_pbLower3in_released(self):
-    #    print("Lower 3 Inches Released")
-    #    self.controller.SetNavCommand(58)
-
-    #__________________________________________________________________________
-    #
     # Navigation Commands for GUI
     #__________________________________________________________________________
     def on_pbForward_pressed(self):
         print("Forward Pressed")
-        self.controller.SetNavCommand(76)
+        self.controller.SetNavCommand(0x50)
     def on_pbForward_released(self):
         print("Forward Released")
-        self.controller.SetNavCommand(46)
+        self.controller.SetNavCommand(0x2e)
 
     def on_pbBack_pressed(self):
         print("Backward Pressed")
@@ -264,37 +292,44 @@ class BotControl(ButtonGui):
 
     def on_pbLeft_pressed(self):
         print("Left Pressed")
-        self.controller.SetNavCommand(140)
+        self.controller.SetNavCommand(148)
     def on_pbLeft_released(self):
         print("Left Released")
-        self.controller.SetNavCommand(46)
+        self.controller.SetNavCommand(0x2e)
 
     def on_pbRight_pressed(self):
         print("Right Pressed")
-        self.controller.SetNavCommand(172)
+        self.controller.SetNavCommand(180)
     def on_pbRight_released(self):
         print("Right Released")
-        self.controller.SetNavCommand(46)
+        self.controller.SetNavCommand(0x2e)
 
     def on_pbRLeft_pressed(self):
         print("Rotate Left Pressed")
-        self.controller.SetNavCommand(232)
+        self.controller.SetNavCommand(0xf0)
     def on_pbRLeft_released(self):
         print("Rotate Left Released")
-        self.controller.SetNavCommand(46)
+        self.controller.SetNavCommand(0x2e)
 
     def on_pbRRight_pressed(self):
         print("Rotate Right Pressed")
-        self.controller.SetNavCommand(200)
+        self.controller.SetNavCommand(204)
     def on_pbRRight_released(self):
         print("Rotate Right Released")
-        self.controller.SetNavCommand(46)
+        self.controller.SetNavCommand(0x2e)
 
     def on_pbRaisePlatform_pressed(self):
         print("Raise Platform Pressed")
         self.controller.SetNavCommand(50)
     def on_pbRaisePlatform_released(self):
         print("Raise Platform Released")
+        self.controller.SetNavCommand(0x2e)
+
+    def on_pbLowerPlatform_pressed(self):
+        print("Lower Platform Pressed")
+        self.controller.SetNavCommand(58)
+    def on_pbLowerPlatform_released(self):
+        print("Lower Platform Released")
         self.controller.SetNavCommand(0x2e)
 
 
@@ -346,17 +381,6 @@ class BotControl(ButtonGui):
     def on_rbHalfBlock_clicked(self):
         self.rbFullBlock.setChecked(False)
 
-    def on_pbEjectAll_pressed(self):
-        print("Retracting All Rows")
-        if self.rbFullBlock.isChecked() == True:
-            # Do command to retract a full block
-            print("Full Block")
-            self.controller.SetSortCommand(1)
-        elif self.rbHalfBlock.isChecked() == True:
-            # Do command to retract a half block
-            print("Half Block")
-            self.controller.SetSortCommand(40)
-
     def on_pbRetractAll_pressed(self):
         print("Retracting All Rows")
         if self.rbFullBlock.isChecked() == True:
@@ -366,7 +390,7 @@ class BotControl(ButtonGui):
         elif self.rbHalfBlock.isChecked() == True:
             # Do command to retract a half block
             print("Half Block")
-            self.controller.SetSortCommand(40)
+            self.controller.SetSortCommand(39)
         
     def on_pbC1TE_pressed(self):
         print("Ejecting Top Row of Channel 1")
