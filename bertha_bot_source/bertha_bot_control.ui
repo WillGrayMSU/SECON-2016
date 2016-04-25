@@ -420,8 +420,8 @@
   <widget class="QGroupBox" name="groupBox_23">
    <property name="geometry">
     <rect>
-     <x>40</x>
-     <y>590</y>
+     <x>20</x>
+     <y>630</y>
      <width>167</width>
      <height>58</height>
     </rect>
@@ -442,24 +442,11 @@
     </item>
    </layout>
   </widget>
-  <widget class="QPushButton" name="pbScan">
-   <property name="geometry">
-    <rect>
-     <x>340</x>
-     <y>540</y>
-     <width>98</width>
-     <height>27</height>
-    </rect>
-   </property>
-   <property name="text">
-    <string>Scan Blocks</string>
-   </property>
-  </widget>
   <widget class="QPushButton" name="pbRetractAll">
    <property name="geometry">
     <rect>
      <x>340</x>
-     <y>570</y>
+     <y>520</y>
      <width>98</width>
      <height>27</height>
     </rect>
@@ -647,8 +634,8 @@
   <widget class="QCheckBox" name="cbAuto">
    <property name="geometry">
     <rect>
-     <x>350</x>
-     <y>650</y>
+     <x>380</x>
+     <y>660</y>
      <width>89</width>
      <height>22</height>
     </rect>
@@ -797,6 +784,84 @@
    </property>
    <property name="text">
     <string>Clear Sort</string>
+   </property>
+  </widget>
+  <widget class="QPushButton" name="pbEjectAll">
+   <property name="geometry">
+    <rect>
+     <x>340</x>
+     <y>550</y>
+     <width>98</width>
+     <height>27</height>
+    </rect>
+   </property>
+   <property name="text">
+    <string>Eject All</string>
+   </property>
+  </widget>
+  <widget class="QPushButton" name="pbRaise3in">
+   <property name="geometry">
+    <rect>
+     <x>340</x>
+     <y>590</y>
+     <width>98</width>
+     <height>27</height>
+    </rect>
+   </property>
+   <property name="text">
+    <string>Raise 3 in</string>
+   </property>
+  </widget>
+  <widget class="QPushButton" name="pbRaise2in">
+   <property name="geometry">
+    <rect>
+     <x>220</x>
+     <y>590</y>
+     <width>98</width>
+     <height>27</height>
+    </rect>
+   </property>
+   <property name="text">
+    <string>Raise 2 in</string>
+   </property>
+  </widget>
+  <widget class="QPushButton" name="pbScan">
+   <property name="geometry">
+    <rect>
+     <x>20</x>
+     <y>580</y>
+     <width>98</width>
+     <height>27</height>
+    </rect>
+   </property>
+   <property name="text">
+    <string>Scan Blocks</string>
+   </property>
+  </widget>
+  <widget class="QPushButton" name="pbLower2in">
+   <property name="geometry">
+    <rect>
+     <x>220</x>
+     <y>620</y>
+     <width>98</width>
+     <height>27</height>
+    </rect>
+   </property>
+   <property name="text">
+    <string>Lower 2 in</string>
+   </property>
+  </widget>
+  <widget class="QPushButton" name="pbLower3in">
+   <property name="geometry">
+    <rect>
+     <x>340</x>
+     <y>620</y>
+     <width>98</width>
+     <height>27</height>
+    </rect>
+   </property>
+   <property name="text">
+    <string>Lower 3 in</string>
    </property>
   </widget>
  </widget>
